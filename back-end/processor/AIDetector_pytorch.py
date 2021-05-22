@@ -22,8 +22,6 @@ class Detector(object):
         self.device = select_device(self.device)
         model = attempt_load(self.weights, map_location=self.device)
         model.to(self.device).eval()
-        # model.half()
-        # torch.save(model, 'test.pt')
         self.m = model
         self.names = model.module.names if hasattr(
             model, 'module') else model.names

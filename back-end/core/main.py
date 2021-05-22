@@ -1,7 +1,6 @@
 from core import process, predict
 import time
 import queue
-import os
 import threading
 
 names = ['person', 'bicycle', 'car', 'motorcycle', 'airplane', 'bus', 'train', 'truck', 'boat', 'traffic light',
@@ -21,11 +20,9 @@ def predict_pics(path, model, ext):
     pic_accuracy = dict()
     image_data = process.pre_process(path)
     image_info = predict.predict(image_data, model, ext)
-    print(image_data[1] + '.' + ext, image_info)
-    # return image_data[1] + '.' + ext, image_info
     pid = image_data[1]
     if len(image_info) == 1:
-        print("{0}图中共识别出{1}种".format(pid, len(image_info)))
+        # print("{0}图中共识别出{1}种".format(pid, len(image_info)))
         for key, value in image_info.items():
             Accuracy = float(value[1])
             pic_accuracy[pid] = Accuracy  # 图片的名称和对应的准确率
@@ -44,28 +41,14 @@ def predict_pics(path, model, ext):
         pic_accuracy_list.append(tmp_dict)
 
 
-
 def c_main(path, model, ext):
-    ####################################################
     q = queue.Queue()
     for i in path:
         q.put(i)
 
     while q.qsize() != 0:
         img = q.get()
-        # print(img)
         threading.Thread(target=predict_pics, args=(img, model, ext)).start()
         time.sleep(0.4)
 
     return pic_accuracy_list
-
-    ####################################################
-    # print(path)
-    # image_data = process.pre_process(path)
-    # image_info = predict.predict(image_data, model, ext)
-    # print(image_data)
-    # return image_data[1] + '.' + ext, image_info
-
-
-if __name__ == '__main__':
-    c_main("../uploads/2.jpg", '1', '1')

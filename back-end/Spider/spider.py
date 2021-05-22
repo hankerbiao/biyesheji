@@ -26,7 +26,7 @@ def baidu(key):
     a = 0
     print(links[:10])
     for i in links[:10]:
-        down(i, "baidu_images/baidu_" + str(a) + ".jpg")
+        down(i, "baidu_images/"+key+"/baidu_" +key+"_" + str(a) + ".jpg")
         a += 1
         time.sleep(0.1)
 
@@ -42,7 +42,7 @@ def sougou(key):
     a = 0
     print(urls[:10])
     for i in urls[:10]:
-        down(i, "sogo_images/sogo_" + str(a) + ".jpg")
+        down(i, "sogo_images/"+key+"/sogo_" +key+"_" + str(a) + ".jpg")
         a += 1
         time.sleep(0.1)
 
@@ -56,15 +56,23 @@ def qihu(key):
     a = 0
 
     for i in links[:10]:
-        down(i, "qihu_images/qihu_" + str(a) + ".jpg")
+        down(i, "qihu_images/"+key+"/qihu_"+key+"_" + str(a) + ".jpg")
         a += 1
         time.sleep(0.1)
 
 
 if __name__ == '__main__':
     import threading
+    import os
 
-    key = "狗"
+    key = "laptop"
+    try:
+        os.mkdir("baidu_images/"+key)
+        os.mkdir("qihu_images/"+key)
+        os.mkdir("sogo_images/"+key)
+    except:
+        pass
+
     threading.Thread(target=baidu, args=(key,)).start()
     threading.Thread(target=sougou, args=(key,)).start()
     threading.Thread(target=qihu, args=(key,)).start()

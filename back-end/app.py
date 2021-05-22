@@ -38,79 +38,100 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-def predict_pics(img):
-    try:
-        # with app.app_context():
-        #     current_app.model = Detector()
-        print("**" * 20)
-        print(img)
-        print("**" * 20)
-        pic_accuracy = dict()
-        input_key = "dog"  # 前端输入的关键字
-        pid, image_info = core.main.c_main(
-            img, current_app.model, "jpg")
-        if len(image_info) == 1:
-            print("{0}图中共识别出{1}种".format(pid, len(image_info)))
-            for key, value in image_info.items():
-                Accuracy = float(value[1])
-                pic_accuracy[pid] = Accuracy  # 图片的名称和对应的准确率
-                print(pic_accuracy)
-                # pic_accuracy_list.append(pic_accuracy)
+# def predict_pics(img):
+#     try:
+#         pic_accuracy = dict()
+#         input_key = "dog"  # 前端输入的关键字
+#         pid, image_info = core.main.c_main(
+#             img, current_app.model, "jpg")
+#         if len(image_info) == 1:
+#             print("{0}图中共识别出{1}种".format(pid, len(image_info)))
+#             for key, value in image_info.items():
+#                 Accuracy = float(value[1])
+#                 pic_accuracy[pid] = Accuracy  # 图片的名称和对应的准确率
+#                 print(pic_accuracy)
+#
+#         if len(image_info) > 1:  # 如果图中有多条狗
+#             many_pic_accuracy = {}
+#             for key, value in image_info.items():
+#                 many_pic_accuracy[key] = float(value[1])
+#             # 按值排序字典，拿到多图中准确率最高的图
+#             a = sorted(many_pic_accuracy.items(), key=lambda x: x[1], reverse=True)
+#             tmp_v = a[0][1]
+#             pic_accuracy[pid] = tmp_v
+#         return pic_accuracy
+#     except Exception as e:
+#         print(e)
 
-        if len(image_info) > 1:  # 如果图中有多条狗
-            many_pic_accuracy = {}
-            for key, value in image_info.items():
-                many_pic_accuracy[key] = float(value[1])
-            # 按值排序字典，拿到多图中准确率最高的图
-            a = sorted(many_pic_accuracy.items(), key=lambda x: x[1], reverse=True)
-            tmp_v = a[0][1]
-            pic_accuracy[pid] = tmp_v
-            # pic_accuracy_list.append(pic_accuracy)
-        return pic_accuracy
-    except Exception as e:
-        print(e)
-        # continue
+def get_score(score):
+    scores = {
+        10: 9.0,
+        9: 9.1,
+        8: 9.2,
+        7: 9.3,
+        6: 9.4,
+        5: 9.5,
+        4: 9.6,
+        3: 9.7,
+        2: 9.8,
+        1: 9.9,
+        0: 10,
+    }
+
+    return float(scores[score])
 
 
-def ssort(list):
+def ssort(pic_lists):
     new_dict = {}
-    for i in list:
-        new_dict.update(i)
+    for i in pic_lists:
+        for key, value in i.items():
+            pic_accuracy = key.split('_')[-1]
+            final_pic_accuracy = get_score(int(pic_accuracy)) + float(value)
+            new_dict[key] = round(float(final_pic_accuracy), 6)
     return sorted(new_dict.items(), key=lambda x: x[1], reverse=True)
 
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    q = queue.Queue()
-    baidu_images = os.listdir("Spider/baidu_images")
-    baidu_image_path = [os.path.join("Spider/baidu_images", img).replace("\\", "/") for img in baidu_images]
-    qihu_images = os.listdir("Spider/qihu_images")
-    qihu_images_path = [os.path.join("Spider/qihu_images", img).replace("\\", "/") for img in qihu_images]
-    sogo_images = os.listdir("Spider/sogo_images")
-    sogo_image_path = [os.path.join("Spider/sogo_images", img).replace("\\", "/") for img in sogo_images]
+    key = "laptop"
+    baidu_images = os.listdir("Spider/baidu_images/"+key)
+    baidu_image_path = [os.path.join("Spider/baidu_images/"+key, img).replace("\\", "/") for img in baidu_images]
+    qihu_images = os.listdir("Spider/qihu_images/"+key)
+    qihu_images_path = [os.path.join("Spider/qihu_images/"+key, img).replace("\\", "/") for img in qihu_images]
+    sogo_images = os.listdir("Spider/sogo_images/"+key)
+    sogo_image_path = [os.path.join("Spider/sogo_images/"+key, img).replace("\\", "/") for img in sogo_images]
     all_picutrues = baidu_image_path + qihu_images_path + sogo_image_path
 
     pic_accuracy_list = core.main.c_main(
         all_picutrues, current_app.model, "jpg")
 
+    print(pic_accuracy_list)
     finall_sort_picslist = ssort(pic_accuracy_list)  # 排序后的结果
+    print(finall_sort_picslist)
     for index, value in enumerate(finall_sort_picslist):
         accuracy = value[1]
-        pic_name = value[0].split("_")[0]  # 拿到网站名字 百度 搜嘎 360
+        pic_name = value[0].split("_")[0]  # 拿到网站名字 百`度 搜狗 360
         pic_id = value[0].split(".")[0].split('_')[1]  # 图片编号 0 - 10
-        print("{}.在 {} 排名第 {} 的图片，在yolo算法中排名第 {} , 准确率为：{}".format(index + 1, pic_name, pic_id, index + 1, accuracy))
+
+        print("{}.在 {} 排名第 {} 的图片，在联合排序算法中排名第 {} , 权值为：{}".format(index + 1, pic_name, pic_id, index + 1, accuracy))
 
     pic_urls = []
     for i in finall_sort_picslist:
         pic_urls.append(i[0])
 
-    print(pic_urls)
-    pic_urls = ["http://127.0.0.1:5003/tmp/ct/" + i + ".jpg" for i in pic_urls]
+    pic_urls_ = ["http://127.0.0.1:5003/tmp/ct/" + i + ".jpg" for i in pic_urls]
     draw_urls = ["http://127.0.0.1:5003/tmp/draw/" + i + ".jpg" for i in pic_urls]
 
+    finall_pics = []
+    for i in range(len(pic_urls)):
+        pic_info = {}
+        pic_info['origin_pics'] = pic_urls_[i]
+        pic_info['draw_pics'] = ["".join(draw_urls[i])]
+        pic_info['pic_name'] = [i.split('/')[-1] for i in pic_urls]
+        finall_pics.append(pic_info)
+
     return jsonify({'status': 1,
-                    'image_url': pic_urls,
-                    'draw_url': draw_urls})
+                    'image_url': finall_pics})
 
 
 @app.route('/')
@@ -118,29 +139,18 @@ def hello_world():
     return redirect(url_for('static', filename='./index.html'))
 
 
-@app.route("/download", methods=['GET'])
-def download_file():
-    # 需要知道2个参数, 第1个参数是本地目录的path, 第2个参数是文件名(带扩展名)
-    return send_from_directory('data', 'testfile.zip', as_attachment=True)
-
-
 # show photo
 @app.route('/tmp/<path:file>', methods=['GET'])
 def show_photo(file):
     if request.method == 'GET':
-        # for file in pic_files:
-        # file = file.split('/')[-1]
         file = file.replace('.jpg.jpg', ".jpg")
         if not file is None:
             if file.find('draw/http://127.0.0.1:5003') > -1:
                 file = file.split('/')[-2:]
                 file = file[0] + "/" + file[1]
-                print(file)
-
             image_data = open(f'tmp/{file}', "rb").read()
             response = make_response(image_data)
             response.headers['Content-Type'] = 'image/png'
-            # print(response)
             return response
 
 

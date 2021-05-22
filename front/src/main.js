@@ -11,6 +11,9 @@ import 'bootstrap/dist/js/bootstrap.min'
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 
+import duoImageViewer from 'duo-image-viewer'
+Vue.use(duoImageViewer)
+
 import Axios from 'axios';
 Vue.prototype.$Axios = Axios;
 

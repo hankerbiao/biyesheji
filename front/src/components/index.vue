@@ -1,54 +1,22 @@
 <template>
-  <div class="backvideo">
-    <el-backtop></el-backtop>
-    <el-container>
-      <div class="backimage">
-        <div class="header-title" style="margin-top: 20px; color: lightseagreen; line-height: 30px">
-          <el-row :gutter="20">
-            <el-col :span="8">
-              <p>
-                <i class="el-icon-star-off"></i>&nbsp;&nbsp;我的公众号:&nbsp;&nbsp;城建417
-              </p>
-            </el-col>
-            <el-col :span="16">
-              <h4 style="font-weight: 800">
-                Y&nbsp;&nbsp;&nbsp;&nbsp;O&nbsp;&nbsp;&nbsp;&nbsp;L&nbsp;&nbsp;&nbsp;&nbsp;O&nbsp;&nbsp;&nbsp;&nbsp;v&nbsp;&nbsp;&nbsp;&nbsp;5&nbsp;&nbsp;&nbsp;&nbsp;-&nbsp;&nbsp;&nbsp;&nbsp;W&nbsp;&nbsp;&nbsp;&nbsp;E&nbsp;&nbsp;&nbsp;&nbsp;B&nbsp;&nbsp;&nbsp;&nbsp;端
-              </h4>
-            </el-col>
-          </el-row>
+  <div class="main">
+    <div class="background"></div>
+    <div class="front"></div>
+    <div class="background">
+      <img :src="imgSrc" width="100%" height="100%" alt="" />
+  </div>
+    <el-input placeholder="请输入关键字信息" v-model="imagesearch" class="input-with-select" style="font-size: 16px;width: 500px;margin-left: -150px;margin-top: 10px;"
+    clearable></el-input>
+    <el-button type="primary" @click="searchcontent()">搜 索</el-button>
+      <div class="product">
+        <div class="product-img-wrap" v-for="image_url in image_urls" :key="image_url" style ="float: left;">
+            <el-image 
+            style="width: 200px; height: 200px;margin-top: 30px;margin-left: 25px;"
+            :src="image_url.origin_pics" 
+            :preview-src-list="image_url.draw_pics">
+          </el-image>                  
         </div>
-        <!-- 搜索框 -->
-        <div class="searchbar">
-          <el-row type="flex" class="row-bg" justify="space-between">
-            <el-col :span="4"> </el-col>
-            <el-col :span="16">
-              <el-input placeholder="请输入关键字信息" v-model="imagesearch" class="input-with-select" style="font-size: 16px"
-                clearable></el-input>
-            </el-col>
-            <el-col :span="4">
-              <el-button type="primary" @click="searchcontent()" style="margin-left: -100px">搜 索</el-button>
-            </el-col>
-          </el-row>
         </div>
-        <div class="main-image">
-          <div class="row">
-            <div class="col-md-4 col-sm-6">
-              <div class="product" v-for="fit2 in srcList" :key="fit2">
-                <div class="product-img-wrap" v-for="fit in url" :key="fit">
-                  <el-image 
-                    style="width: 100px; height: 100px"
-                    :src="fit" 
-                    :preview-src-list="fit2">
-                  </el-image>
-                  <!-- <img class="card-img-top" :src="fit" :preview-src-list="fit" alt="img" /> -->
-                  <div class="quick-view">文字描述</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </el-container>
   </div>
 </template>
 
@@ -58,12 +26,11 @@
   export default {
     data() {
       return {
-        vedioCanPlay: false,
+        imgSrc:require('../assets/images/bg.jpeg'),
         fixStyle: "",
         imagesearch: "",
-        urls: [],
-        url:[],
-        srcList: [],
+        image_urls: [],
+        draw_urls: [],
       };
     },
 
@@ -76,20 +43,30 @@
         axios
           .get(path)
           .then((res) => {
-            this.url = res.data.image_url;
-            this.srcList.push(res.data.draw_url);
-            console.log(res)
-            console.log(this.srcList)
-            console.log(this.url)
+            this.image_urls = res.data.image_url;
           })
           .catch((error) => {
-            console.log("===== errot =====")
-            console.error(error);
-            console.log("===============")
+            for (let index = 0; index < image_urls.length; index++) {
+              const element = image_urls[index];
+              console.log(element)
+            }
           });
-
       },
     },
   };
 </script>
+
+<style>
+.background{
+    width:100%;  
+    height:100%;  /**宽高100%是为了图片铺满屏幕 */
+    z-index:-1;
+    position: absolute;
+}
+ 
+.front{
+    z-index:1;
+    position: absolute;
+}
+</style>
 
