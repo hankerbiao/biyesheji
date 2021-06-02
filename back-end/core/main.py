@@ -21,15 +21,22 @@ def predict_pics(path, model, ext):
     image_data = process.pre_process(path)
     image_info = predict.predict(image_data, model, ext)
     pid = image_data[1]
+    print(image_info)
+
+    if len(image_info) == 0:
+        print("=" * 100)
+        print({pid: 0.0})
+        pic_accuracy_list.append({pid: 0.0})
+        print("=" * 100)
+
     if len(image_info) == 1:
-        # print("{0}图中共识别出{1}种".format(pid, len(image_info)))
+        # 如果只有图中只有一种
         for key, value in image_info.items():
             Accuracy = float(value[1])
             pic_accuracy[pid] = Accuracy  # 图片的名称和对应的准确率
-            print(pic_accuracy)
             pic_accuracy_list.append(pic_accuracy)
 
-    if len(image_info) > 1:  # 如果图中有多条狗
+    if len(image_info) > 1:  # 如果图中有多种
         many_pic_accuracy = {}
         tmp_dict = {}
         for key, value in image_info.items():
@@ -43,12 +50,13 @@ def predict_pics(path, model, ext):
 
 def c_main(path, model, ext):
     q = queue.Queue()
+
     for i in path:
         q.put(i)
-
     while q.qsize() != 0:
         img = q.get()
         threading.Thread(target=predict_pics, args=(img, model, ext)).start()
         time.sleep(0.4)
+    time.sleep(1)
 
     return pic_accuracy_list

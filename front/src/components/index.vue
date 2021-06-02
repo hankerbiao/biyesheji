@@ -36,9 +36,6 @@
 
     methods: {
       searchcontent() {
-        console.log(this.imagesearch);
-        console.log("点击了按钮");
-
         const path = "http://localhost:5003/test";
         axios
           .get(path)
@@ -46,10 +43,7 @@
             this.image_urls = res.data.image_url;
           })
           .catch((error) => {
-            for (let index = 0; index < image_urls.length; index++) {
-              const element = image_urls[index];
-              console.log(element)
-            }
+            console.log(error)
           });
       },
     },

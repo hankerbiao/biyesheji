@@ -38,31 +38,6 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
-# def predict_pics(img):
-#     try:
-#         pic_accuracy = dict()
-#         input_key = "dog"  # 前端输入的关键字
-#         pid, image_info = core.main.c_main(
-#             img, current_app.model, "jpg")
-#         if len(image_info) == 1:
-#             print("{0}图中共识别出{1}种".format(pid, len(image_info)))
-#             for key, value in image_info.items():
-#                 Accuracy = float(value[1])
-#                 pic_accuracy[pid] = Accuracy  # 图片的名称和对应的准确率
-#                 print(pic_accuracy)
-#
-#         if len(image_info) > 1:  # 如果图中有多条狗
-#             many_pic_accuracy = {}
-#             for key, value in image_info.items():
-#                 many_pic_accuracy[key] = float(value[1])
-#             # 按值排序字典，拿到多图中准确率最高的图
-#             a = sorted(many_pic_accuracy.items(), key=lambda x: x[1], reverse=True)
-#             tmp_v = a[0][1]
-#             pic_accuracy[pid] = tmp_v
-#         return pic_accuracy
-#     except Exception as e:
-#         print(e)
-
 def get_score(score):
     scores = {
         10: 9.0,
@@ -93,21 +68,24 @@ def ssort(pic_lists):
 
 @app.route('/test', methods=['GET', 'POST'])
 def test():
-    key = "laptop"
-    baidu_images = os.listdir("Spider/baidu_images/"+key)
-    baidu_image_path = [os.path.join("Spider/baidu_images/"+key, img).replace("\\", "/") for img in baidu_images]
-    qihu_images = os.listdir("Spider/qihu_images/"+key)
-    qihu_images_path = [os.path.join("Spider/qihu_images/"+key, img).replace("\\", "/") for img in qihu_images]
-    sogo_images = os.listdir("Spider/sogo_images/"+key)
-    sogo_image_path = [os.path.join("Spider/sogo_images/"+key, img).replace("\\", "/") for img in sogo_images]
-    all_picutrues = baidu_image_path + qihu_images_path + sogo_image_path
+    key = "hot dog"
+    baidu_images = os.listdir("Datas/baidu_images/" + key)
+    baidu_image_path = [os.path.join("Datas/baidu_images/" + key, img).replace("\\", "/") for img in baidu_images if
+                        img.endswith('jpg')]
+    qihu_images = os.listdir("Datas/qihu_images/" + key)
+    qihu_images_path = [os.path.join("Datas/qihu_images/" + key, img).replace("\\", "/") for img in qihu_images if
+                        img.endswith('jpg')]
+    sogo_images = os.listdir("Datas/sogo_images/" + key)
+    sogo_image_path = [os.path.join("Datas/sogo_images/" + key, img).replace("\\", "/") for img in sogo_images if
+                       img.endswith('jpg')]
+    # all_picutrues = baidu_image_path + qihu_images_path + sogo_image_path
+    all_picutrues = baidu_image_path
 
     pic_accuracy_list = core.main.c_main(
         all_picutrues, current_app.model, "jpg")
 
-    print(pic_accuracy_list)
     finall_sort_picslist = ssort(pic_accuracy_list)  # 排序后的结果
-    print(finall_sort_picslist)
+
     for index, value in enumerate(finall_sort_picslist):
         accuracy = value[1]
         pic_name = value[0].split("_")[0]  # 拿到网站名字 百`度 搜狗 360
@@ -116,6 +94,7 @@ def test():
         print("{}.在 {} 排名第 {} 的图片，在联合排序算法中排名第 {} , 权值为：{}".format(index + 1, pic_name, pic_id, index + 1, accuracy))
 
     pic_urls = []
+
     for i in finall_sort_picslist:
         pic_urls.append(i[0])
 

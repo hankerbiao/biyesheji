@@ -11,8 +11,8 @@ def make_md5(s, encoding='utf-8'):
     return md5(s.encode(encoding)).hexdigest()
 
 
-appid = '20200502000436928'
-appkey = 'tc3FMcltqCcUYm9GgJRB'
+appid = '20210517000830521'
+appkey = 'iEnSihQ8O0W8MyAXvrhf'
 endpoint = 'http://api.fanyi.baidu.com'
 path = '/api/trans/vip/translate'
 url = endpoint + path

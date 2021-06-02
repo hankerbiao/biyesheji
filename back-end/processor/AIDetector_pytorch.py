@@ -5,6 +5,7 @@ from utils.general import non_max_suppression, scale_coords, letterbox
 from utils.torch_utils import select_device
 import cv2
 from random import randint
+import time
 
 
 class Detector(object):
@@ -30,7 +31,6 @@ class Detector(object):
         ]
 
     def preprocess(self, img):
-
         img0 = img.copy()
         img = letterbox(img, new_shape=self.img_size)[0]
         img = img[:, :, ::-1].transpose(2, 0, 1)
@@ -45,7 +45,7 @@ class Detector(object):
 
     def plot_bboxes(self, image, bboxes, line_thickness=None):
         tl = line_thickness or round(
-            0.002 * (image.shape[0] + image.shape[1]) / 2) + 1  # line/font thickness
+            0.002 * (image.shape[0] + image.shape[1]) / 2) + 1
         for (x1, y1, x2, y2, cls_id, conf) in bboxes:
             color = self.colors[self.names.index(cls_id)]
             c1, c2 = (x1, y1), (x2, y2)
@@ -55,7 +55,7 @@ class Detector(object):
             t_size = cv2.getTextSize(
                 cls_id, 0, fontScale=tl / 3, thickness=tf)[0]
             c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
-            cv2.rectangle(image, c1, c2, color, -1, cv2.LINE_AA)  # filled
+            cv2.rectangle(image, c1, c2, color, -1, cv2.LINE_AA)
             cv2.putText(image, '{} ID-{:.2f}'.format(cls_id, conf), (c1[0], c1[1] - 2), 0, tl / 3,
                         [225, 255, 255], thickness=tf, lineType=cv2.LINE_AA)
         return image

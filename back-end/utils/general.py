@@ -467,7 +467,10 @@ def increment_path(path, exist_ok=True, sep=''):
 
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True):
+
     shape = img.shape[:2]  # current shape [height, width]
+
+
     if isinstance(new_shape, int):
         new_shape = (new_shape, new_shape)
 
